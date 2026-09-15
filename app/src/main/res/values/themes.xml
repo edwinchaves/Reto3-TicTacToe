@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Tema base usando AppCompat para evitar el crash al inflar botones -->
+    <style name="Base.Theme.TicTacToe" parent="Theme.AppCompat.Light.NoActionBar">
+    </style>
+
+    <style name="Theme.TicTacToe" parent="Base.Theme.TicTacToe" />
+
+    <!-- Estilo obligatorio para las casillas del tablero -->
+    <style name="BoardSquareStyle">
+        <item name="android:layout_width">90dp</item>
+        <item name="android:layout_height">90dp</item>
+        <item name="android:layout_margin">5dp</item>
+        <item name="android:background">#FFFFFF</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:elevation">4dp</item>
+    </style>
+
+</resources>

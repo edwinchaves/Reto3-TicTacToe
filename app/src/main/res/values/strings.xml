@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">TicTacToe</string>
+    <string name="title_bears">OSITOS</string>
+    <string name="title_game">TIC TAC TOE</string>
+    <string name="paw_emoji">🐾</string>
+    <string name="status_bear_turn">¡TURNO DEL\nOSO CAFÉ!</string>
+    <string name="btn_new_game">NUEVA PARTIDA</string>
+    <string name="btn_play_again">JUGAR DE NUEVO</string>
+    <string name="desc_board_square">Casilla del tablero</string>
+</resources>
