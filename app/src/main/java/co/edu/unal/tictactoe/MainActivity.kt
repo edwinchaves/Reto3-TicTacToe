@@ -3,11 +3,15 @@ package co.edu.unal.tictactoe
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import co.edu.unal.tictactoe.R // <-- IMPORTANTE: Soluciona los 'Unresolved reference R/layout/id/drawable'
+import co.edu.unal.tictactoe.R
 
 @Suppress("SetTextI18n")
 class MainActivity : AppCompatActivity() {
@@ -61,6 +65,73 @@ class MainActivity : AppCompatActivity() {
 
         startNewGame()
     }
+
+    // --- INTEGRACIÓN MENÚ DE OPCIONES (RETO 4) ---
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.options_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.new_game -> {
+                startNewGame()
+                true
+            }
+            R.id.ai_difficulty -> {
+                showDifficultyDialog()
+                true
+            }
+            R.id.about_app -> {
+                showAboutDialog()
+                true
+            }
+            R.id.quit -> {
+                showQuitDialog()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    // Diálogo para seleccionar la Dificultad (Fácil, Medio, Experto)
+    private fun showDifficultyDialog() {
+        val levels = arrayOf("Fácil", "Medio (Harder)", "Experto")
+        val currentLevelIndex = game.difficultyLevel.ordinal
+
+        AlertDialog.Builder(this)
+            .setTitle("Selecciona la dificultad:")
+            .setSingleChoiceItems(levels, currentLevelIndex) { dialog, which ->
+                game.difficultyLevel = TicTacToeGame.DifficultyLevel.values()[which]
+                Toast.makeText(this, "Dificultad cambiada a: ${levels[which]}", Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    // Diálogo "Acerca de"
+    private fun showAboutDialog() {
+        val inflater = layoutInflater
+        val dialogView = inflater.inflate(R.layout.about_dialog, null)
+
+        AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setPositiveButton("OK", null)
+            .show()
+    }
+
+    // Diálogo de confirmación para Salir
+    private fun showQuitDialog() {
+        AlertDialog.Builder(this)
+            .setMessage("¿Estás seguro de que deseas salir?")
+            .setCancelable(false)
+            .setPositiveButton("Sí") { _, _ -> finish() }
+            .setNegativeButton("No", null)
+            .show()
+    }
+
+    // --- LÓGICA DEL JUEGO ---
 
     private fun startNewGame() {
         game.clearBoard()

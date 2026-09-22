@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Tema base usando AppCompat para evitar el crash al inflar botones -->
-    <style name="Base.Theme.TicTacToe" parent="Theme.AppCompat.Light.NoActionBar">
+    <!-- Tema base usando AppCompat con ActionBar para mostrar el menú de la app -->
+    <style name="Base.Theme.TicTacToe" parent="Theme.AppCompat.Light.DarkActionBar">
     </style>
 
     <style name="Theme.TicTacToe" parent="Base.Theme.TicTacToe" />

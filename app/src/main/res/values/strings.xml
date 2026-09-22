@@ -7,4 +7,24 @@
     <string name="btn_new_game">NUEVA PARTIDA</string>
     <string name="btn_play_again">JUGAR DE NUEVO</string>
     <string name="desc_board_square">Casilla del tablero</string>
+
+    <!-- Textos para el Reto 4 (Menú y Diálogos) -->
+    <string name="menu_new_game">Nuevo Juego</string>
+    <string name="menu_difficulty">Dificultad</string>
+    <string name="menu_about">Acerca de</string>
+    <string name="menu_quit">Salir</string>
+
+    <string name="difficulty_choose">Selecciona la dificultad:</string>
+    <string name="difficulty_easy">Fácil</string>
+    <string name="difficulty_harder">Medio</string>
+    <string name="difficulty_expert">Experto</string>
+
+    <string name="quit_question">¿Estás seguro de que deseas salir?</string>
+    <string name="yes">Sí</string>
+    <string name="no">No</string>
+    <string name="ok">OK</string>
+
+    <string name="about_title">🐾 Tic-Tac-Toe Ositos 🐾</string>
+    <string name="about_author">Creado por: Beto Chaves</string>
+    <string name="about_version">Versión 1.0 - UNAL 2026</string>
 </resources>
