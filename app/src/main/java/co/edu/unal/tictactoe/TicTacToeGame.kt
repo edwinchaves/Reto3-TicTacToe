@@ -2,6 +2,15 @@ package co.edu.unal.tictactoe
 
 class TicTacToeGame {
 
+
+    // Agrega esta función dentro de la clase TicTacToeGame
+    fun getBoardOccupant(location: Int): Char {
+        if (location in 0 until BOARD_SIZE) {
+            return mBoard[location] // Si tu arreglo de posiciones se llama distinto (ej. 'board'), cámbialo aquí
+        }
+        return OPEN_SPOT
+    }
+
     // Constantes del tablero y jugadores
     companion object {
         const val BOARD_SIZE = 9

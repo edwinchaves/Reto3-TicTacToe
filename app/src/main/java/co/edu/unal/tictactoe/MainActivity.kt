@@ -1,203 +1,159 @@
 package co.edu.unal.tictactoe
 
+import android.annotation.SuppressLint
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.Menu
-import android.view.MenuItem
-import android.widget.Button
-import android.widget.ImageButton
+import android.view.GestureDetector
+import android.view.MotionEvent
+import android.view.View
 import android.widget.TextView
-import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import co.edu.unal.tictactoe.R
 
-@Suppress("SetTextI18n")
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var game: TicTacToeGame
-    private lateinit var boardButtons: Array<ImageButton>
-    private lateinit var tvInfo: TextView
+    private var game: TicTacToeGame? = null
+    private var boardView: BoardView? = null
+    private var tvInfo: TextView? = null
 
     private var isVsCpu: Boolean = true
-    private var isHumanTurn: Boolean = true
     private var isGameActive: Boolean = true
+    private var isHumanTurn: Boolean = true
 
+    private var humanMediaPlayer: MediaPlayer? = null
+    private var computerMediaPlayer: MediaPlayer? = null
+    private var gestureDetector: GestureDetector? = null
+
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
-        game = TicTacToeGame()
-        tvInfo = findViewById(R.id.tvInfo)
+        try {
+            setContentView(R.layout.activity_main)
 
-        boardButtons = arrayOf(
-            findViewById(R.id.btn0), findViewById(R.id.btn1), findViewById(R.id.btn2),
-            findViewById(R.id.btn3), findViewById(R.id.btn4), findViewById(R.id.btn5),
-            findViewById(R.id.btn6), findViewById(R.id.btn7), findViewById(R.id.btn8)
-        )
+            // Leer modo enviado desde MenuActivity
+            isVsCpu = intent?.getBooleanExtra("EXTRA_VS_CPU", true) ?: true
 
-        for (i in boardButtons.indices) {
-            boardButtons[i].setOnClickListener {
-                if (isGameActive) {
-                    onCellClicked(i)
+            game = TicTacToeGame()
+            tvInfo = findViewById(R.id.tvInfo)
+            boardView = findViewById(R.id.boardView)
+
+            game?.let { g ->
+                boardView?.setGame(g)
+            }
+
+            // Escuchador de toques en el tablero
+            boardView?.setOnTouchListener { view, event ->
+                if (event.action == MotionEvent.ACTION_DOWN && isGameActive) {
+                    val bView = boardView ?: return@setOnTouchListener false
+                    val cellWidth = bView.getBoardCellWidth()
+                    val cellHeight = bView.getBoardCellHeight()
+
+                    if (cellWidth > 0 && cellHeight > 0) {
+                        val col = event.x.toInt() / cellWidth
+                        val row = event.y.toInt() / cellHeight
+                        val pos = row * 3 + col
+
+                        if (pos in 0 until TicTacToeGame.BOARD_SIZE) {
+                            onCellClicked(pos)
+                            view.performClick()
+                        }
+                    }
                 }
+                true
             }
-        }
 
-        val btnVsCpu = findViewById<Button>(R.id.btnModeVsCpu)
-        val btnVsHuman = findViewById<Button>(R.id.btnModeVsHuman)
-        val btnReset = findViewById<Button>(R.id.btnReset)
+            // Botón atrás físico o gestual
+            onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    confirmExitToMenu()
+                }
+            })
 
-        btnVsCpu.setOnClickListener {
-            isVsCpu = true
+            // Gestos: doble toque fuera del tablero para volver al menú
+            gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+                override fun onDoubleTap(e: MotionEvent): Boolean {
+                    confirmExitToMenu()
+                    return true
+                }
+            })
+
+            val mainLayout = findViewById<View>(R.id.mainRootLayout)
+            mainLayout?.setOnTouchListener { v, event ->
+                gestureDetector?.onTouchEvent(event)
+                if (event.action == MotionEvent.ACTION_DOWN) {
+                    v.performClick()
+                }
+                false
+            }
+
             startNewGame()
-        }
-
-        btnVsHuman.setOnClickListener {
-            isVsCpu = false
-            startNewGame()
-        }
-
-        btnReset.setOnClickListener {
-            startNewGame()
-        }
-
-        startNewGame()
-    }
-
-    // --- INTEGRACIÓN MENÚ DE OPCIONES (RETO 4) ---
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.options_menu, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.new_game -> {
-                startNewGame()
-                true
-            }
-            R.id.ai_difficulty -> {
-                showDifficultyDialog()
-                true
-            }
-            R.id.about_app -> {
-                showAboutDialog()
-                true
-            }
-            R.id.quit -> {
-                showQuitDialog()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
+        } catch (e: Throwable) {
+            e.printStackTrace()
         }
     }
-
-    // Diálogo para seleccionar la Dificultad (Fácil, Medio, Experto)
-    private fun showDifficultyDialog() {
-        val levels = arrayOf("Fácil", "Medio (Harder)", "Experto")
-        val currentLevelIndex = game.difficultyLevel.ordinal
-
-        AlertDialog.Builder(this)
-            .setTitle("Selecciona la dificultad:")
-            .setSingleChoiceItems(levels, currentLevelIndex) { dialog, which ->
-                game.difficultyLevel = TicTacToeGame.DifficultyLevel.values()[which]
-                Toast.makeText(this, "Dificultad cambiada a: ${levels[which]}", Toast.LENGTH_SHORT).show()
-                dialog.dismiss()
-            }
-            .show()
-    }
-
-    // Diálogo "Acerca de"
-    private fun showAboutDialog() {
-        val inflater = layoutInflater
-        val dialogView = inflater.inflate(R.layout.about_dialog, null)
-
-        AlertDialog.Builder(this)
-            .setView(dialogView)
-            .setPositiveButton("OK", null)
-            .show()
-    }
-
-    // Diálogo de confirmación para Salir
-    private fun showQuitDialog() {
-        AlertDialog.Builder(this)
-            .setMessage("¿Estás seguro de que deseas salir?")
-            .setCancelable(false)
-            .setPositiveButton("Sí") { _, _ -> finish() }
-            .setNegativeButton("No", null)
-            .show()
-    }
-
-    // --- LÓGICA DEL JUEGO ---
 
     private fun startNewGame() {
-        game.clearBoard()
+        game?.clearBoard()
         isGameActive = true
         isHumanTurn = true
-
-        for (i in boardButtons.indices) {
-            boardButtons[i].setImageResource(0)
-            boardButtons[i].isEnabled = true
-        }
-
-        if (isVsCpu) {
-            tvInfo.text = "Modo: Vs Robot 🤖 (Tu turno)"
-        } else {
-            tvInfo.text = "Modo 2 Jugadores: Turno Jugador 1 🐻"
-        }
+        boardView?.invalidate()
+        tvInfo?.text = if (isVsCpu) "¡Es tu turno!" else "Turno: Jugador 1 🐻"
     }
 
     private fun onCellClicked(location: Int) {
+        val g = game ?: return
         if (!isGameActive) return
 
         if (isVsCpu) {
-            if (game.setMove(TicTacToeGame.HUMAN_PLAYER, location)) {
-                boardButtons[location].setImageResource(R.drawable.ic_bear_human)
-                boardButtons[location].isEnabled = false
+            // --- MODO VS ROBOT ---
+            if (isHumanTurn) {
+                if (g.setMove(TicTacToeGame.HUMAN_PLAYER, location)) {
+                    playHumanSound()
+                    boardView?.invalidate()
 
-                val winner = game.checkForWinner()
-                if (winner == 0) {
-                    tvInfo.text = "Pensando... 🤖"
-                    setBoardEnabled(false)
+                    val winner = g.checkForWinner()
+                    if (winner == 0) {
+                        isHumanTurn = false
+                        tvInfo?.text = "Pensando... 🤖"
 
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        if (isGameActive) {
-                            val move = game.getComputerMove()
-                            if (move != -1) {
-                                game.setMove(TicTacToeGame.COMPUTER_PLAYER, move)
-                                boardButtons[move].setImageResource(R.drawable.ic_bear_robot)
-                                boardButtons[move].isEnabled = false
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            if (isGameActive) {
+                                val move = g.getComputerMove()
+                                if (move != -1) {
+                                    g.setMove(TicTacToeGame.COMPUTER_PLAYER, move)
+                                    playComputerSound()
+                                    boardView?.invalidate()
 
-                                val winnerAfterCpu = game.checkForWinner()
-                                if (winnerAfterCpu == 0) {
-                                    tvInfo.text = "¡Es tu turno!"
-                                    setBoardEnabled(true)
-                                } else {
-                                    updateGameStatus(winnerAfterCpu)
+                                    val winnerAfterCpu = g.checkForWinner()
+                                    if (winnerAfterCpu == 0) {
+                                        isHumanTurn = true
+                                        tvInfo?.text = "¡Es tu turno!"
+                                    } else {
+                                        updateGameStatus(winnerAfterCpu)
+                                    }
                                 }
                             }
-                        }
-                    }, 1000)
-
-                } else {
-                    updateGameStatus(winner)
+                        }, 800)
+                    } else {
+                        updateGameStatus(winner)
+                    }
                 }
             }
         } else {
+            // --- MODO 2 JUGADORES ---
             val currentPlayer = if (isHumanTurn) TicTacToeGame.HUMAN_PLAYER else TicTacToeGame.COMPUTER_PLAYER
-            val currentDrawable = if (isHumanTurn) R.drawable.ic_bear_human else R.drawable.ic_bear_human2
+            if (g.setMove(currentPlayer, location)) {
+                if (isHumanTurn) playHumanSound() else playComputerSound()
+                boardView?.invalidate()
 
-            if (game.setMove(currentPlayer, location)) {
-                boardButtons[location].setImageResource(currentDrawable)
-                boardButtons[location].isEnabled = false
-
-                val winner = game.checkForWinner()
+                val winner = g.checkForWinner()
                 if (winner == 0) {
                     isHumanTurn = !isHumanTurn
-                    tvInfo.text = if (isHumanTurn) "Turno Jugador 1 🐻" else "Turno Jugador 2 🐼"
+                    tvInfo?.text = if (isHumanTurn) "Turno: Jugador 1 🐻" else "Turno: Jugador 2 🐼"
                 } else {
                     updateGameStatus(winner)
                 }
@@ -207,24 +163,62 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateGameStatus(winner: Int) {
         when (winner) {
-            1 -> tvInfo.text = "¡Es un empate! 🤝"
-            2 -> tvInfo.text = if (isVsCpu) "¡Ganaste!" else "¡Gana Jugador 1 🐻!"
-            3 -> tvInfo.text = if (isVsCpu) "¡Gano el Robot 🤖!" else "¡Gana Jugador 2 🐼!"
+            1 -> tvInfo?.text = "¡Es un empate! 🤝"
+            2 -> tvInfo?.text = if (isVsCpu) "¡Ganaste 🐻!" else "¡Ganó Jugador 1 🐻!"
+            3 -> tvInfo?.text = if (isVsCpu) "¡Ganó el Robot 🤖!" else "¡Ganó Jugador 2 🐼!"
         }
-
         isGameActive = false
-        setBoardEnabled(false)
     }
 
-    private fun setBoardEnabled(enabled: Boolean) {
-        for (i in boardButtons.indices) {
-            if (enabled) {
-                if (game.checkForWinner() == 0 && boardButtons[i].drawable == null) {
-                    boardButtons[i].isEnabled = true
-                }
-            } else {
-                boardButtons[i].isEnabled = false
-            }
+    private fun confirmExitToMenu() {
+        try {
+            AlertDialog.Builder(this)
+                .setTitle("¿Salir al Menú Principal?")
+                .setMessage("¿Estás seguro de que deseas salir?")
+                .setPositiveButton("Sí") { _, _ -> finish() }
+                .setNegativeButton("No", null)
+                .show()
+        } catch (e: Throwable) {
+            finish()
+        }
+    }
+
+    fun playHumanSound() {
+        try {
+            humanMediaPlayer?.start()
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
+    }
+
+    fun playComputerSound() {
+        try {
+            computerMediaPlayer?.start()
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        try {
+            // Inicialización segura de audios
+            humanMediaPlayer = MediaPlayer.create(applicationContext, R.raw.sound_human)
+            computerMediaPlayer = MediaPlayer.create(applicationContext, R.raw.sound_robot)
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        try {
+            humanMediaPlayer?.release()
+            computerMediaPlayer?.release()
+            humanMediaPlayer = null
+            computerMediaPlayer = null
+        } catch (e: Throwable) {
+            e.printStackTrace()
         }
     }
 }

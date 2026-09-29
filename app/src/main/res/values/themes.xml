@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Tema base usando AppCompat con ActionBar para mostrar el menú de la app -->
-    <style name="Base.Theme.TicTacToe" parent="Theme.AppCompat.Light.DarkActionBar">
+    <!-- Tema base sin ActionBar para evitar conflictos visuales e inicialización limpia -->
+    <style name="Base.Theme.TicTacToe" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Colores base necesarios para evitar fallos de renderizado en Android -->
+        <item name="colorPrimary">#7CA1D8</item>
+        <item name="colorPrimaryDark">#5C82B8</item>
+        <item name="colorAccent">#F28B82</item>
+        <item name="android:windowBackground">#F5F5F5</item>
     </style>
 
     <style name="Theme.TicTacToe" parent="Base.Theme.TicTacToe" />
 
-    <!-- Estilo obligatorio para las casillas del tablero -->
+    <!-- Estilo para las casillas del tablero -->
     <style name="BoardSquareStyle">
         <item name="android:layout_width">90dp</item>
         <item name="android:layout_height">90dp</item>

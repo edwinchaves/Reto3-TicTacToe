@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFF8EE"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:id="@+id/tvMainTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🐾 OSITOS 🐾"
+            android:textColor="#F28B82"
+            android:textSize="32sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvSubTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:text="TIC TAC TOE"
+            android:textColor="#7CA1D8"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnVsCpu"
+            android:layout_width="240dp"
+            android:layout_height="56dp"
+            android:layout_marginBottom="12dp"
+            android:text="JUGAR VS ROBOT 🤖"
+            android:textSize="16sp" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnVsHuman"
+            android:layout_width="240dp"
+            android:layout_height="56dp"
+            android:layout_marginBottom="12dp"
+            android:text="2 JUGADORES 🐻🐼"
+            android:textSize="16sp" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnDifficulty"
+            android:layout_width="240dp"
+            android:layout_height="56dp"
+            android:layout_marginBottom="12dp"
+            android:text="DIFICULTAD ⚙️"
+            android:textSize="16sp" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnAbout"
+            android:layout_width="240dp"
+            android:layout_height="56dp"
+            android:text="ACERCA DE ... ℹ️"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+</ScrollView>
