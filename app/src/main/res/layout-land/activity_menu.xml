@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFF9EE"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:padding="20dp">
+
+    <!-- COLUMNA IZQUIERDA: Título y Decoración -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:contentDescription="Patita izquierda"
+                android:src="@drawable/ic_bear_paw" />
+
+            <TextView
+                android:id="@+id/tvTitleOsitos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="6dp"
+                android:fontFamily="sans-serif-rounded"
+                android:text="OSITOS"
+                android:textColor="#EE8090"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:contentDescription="Patita derecha"
+                android:src="@drawable/ic_bear_paw" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvTitleTicTacToe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-4dp"
+            android:fontFamily="sans-serif-rounded"
+            android:text="TIC TAC TOE"
+            android:textColor="#92A8D1"
+            android:textSize="26sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <Space
+        android:layout_width="16dp"
+        android:layout_height="match_parent" />
+
+    <!-- COLUMNA DERECHA: Lista de Botones -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <!-- Botón 1: CONTINUAR -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnContinue"
+            android:layout_width="210dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="6dp"
+            android:background="@drawable/button_pill"
+            android:fontFamily="sans-serif-rounded"
+            android:text="CONTINUAR"
+            android:textAllCaps="true"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <!-- Botón 2: JUGAR VS CPU -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnVsCpu"
+            android:layout_width="210dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="6dp"
+            android:background="@drawable/button_pill"
+            android:fontFamily="sans-serif-rounded"
+            android:text="JUGAR VS CPU"
+            android:textAllCaps="true"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <!-- Botón 3: 2 JUGADORES -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnVsHuman"
+            android:layout_width="210dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="6dp"
+            android:background="@drawable/button_pill"
+            android:fontFamily="sans-serif-rounded"
+            android:text="2 JUGADORES"
+            android:textAllCaps="true"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <!-- Botón 4: DIFICULTAD -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnDifficulty"
+            android:layout_width="210dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="6dp"
+            android:background="@drawable/button_pill"
+            android:fontFamily="sans-serif-rounded"
+            android:text="DIFICULTAD"
+            android:textAllCaps="true"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <!-- Botón 5: ACERCA DE -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnAbout"
+            android:layout_width="210dp"
+            android:layout_height="40dp"
+            android:background="@drawable/button_pill"
+            android:fontFamily="sans-serif-rounded"
+            android:text="ACERCA DE"
+            android:textAllCaps="true"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+</LinearLayout>

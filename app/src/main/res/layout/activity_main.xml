@@ -1,65 +1,161 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/mainRootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFF8EE"
-    android:fillViewport="true"
-    tools:targetApi="n">
+    android:background="#FFF9EE"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:padding="20dp">
 
+    <!-- Encabezado Título -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:contentDescription="Patita izquierda"
+            android:src="@drawable/ic_bear_paw" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="6dp"
+            android:fontFamily="sans-serif-rounded"
+            android:text="OSITOS"
+            android:textColor="#EE8090"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:contentDescription="Patita derecha"
+            android:src="@drawable/ic_bear_paw" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-rounded"
+        android:text="TIC TAC TOE"
+        android:textColor="#92A8D1"
+        android:textSize="26sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="12dp"
+        android:fontFamily="sans-serif-rounded"
+        android:text="Turno: Jugador 1"
+        android:textColor="#555555"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <!-- Tablero de Juego Custom (BoardView) -->
+    <co.edu.unal.tictactoe.BoardView
+        android:id="@+id/boardView"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_marginVertical="12dp" />
+
+    <!-- Marcador de Victorias (Panel Inferior) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
+        android:layout_marginTop="16dp"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:paddingHorizontal="32dp">
 
-        <TextView
-            android:id="@+id/tvMainTitle"
-            android:layout_width="wrap_content"
+        <!-- Jugador 1 (Café) -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="🐾 OSITOS 🐾"
-            android:textColor="#F28B82"
-            android:textSize="28sp"
-            android:textStyle="bold" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/tvSubTitle"
-            android:layout_width="wrap_content"
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="Osito Café"
+                android:src="@drawable/ic_bear_human" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvPlayer1Label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-rounded"
+                    android:text="JUGADOR 1"
+                    android:textColor="#4A3228"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvPlayer1Wins"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-rounded"
+                    android:text="0 wins"
+                    android:textColor="#7A6860"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Jugador 2 / CPU (Crema o Robot) -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="TIC TAC TOE"
-            android:textColor="#7CA1D8"
-            android:textSize="22sp"
-            android:textStyle="bold" />
+            android:layout_marginTop="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/tvInfo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="¡Es tu turno!"
-            android:textColor="#F28B82"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            <!-- ID asignado para cambiar entre robot y humano desde Kotlin -->
+            <ImageView
+                android:id="@+id/ivPlayer2Icon"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="Icono Jugador 2 o Robot"
+                android:src="@drawable/ic_bear_human2" />
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            app:cardBackgroundColor="#FFECCB"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="2dp">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:orientation="vertical">
 
-            <co.edu.unal.tictactoe.BoardView
-                android:id="@+id/boardView"
-                android:layout_width="282dp"
-                android:layout_height="282dp"
-                android:layout_margin="10dp" />
+                <TextView
+                    android:id="@+id/tvPlayer2Label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-rounded"
+                    android:text="JUGADOR 2"
+                    android:textColor="#4A3228"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
-        </androidx.cardview.widget.CardView>
+                <TextView
+                    android:id="@+id/tvPlayer2Wins"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-rounded"
+                    android:text="0 wins"
+                    android:textColor="#7A6860"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
 
     </LinearLayout>
-</ScrollView>
+
+</LinearLayout>
