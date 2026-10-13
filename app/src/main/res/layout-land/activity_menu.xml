@@ -112,7 +112,21 @@
             android:textSize="13sp"
             android:textStyle="bold" />
 
-        <!-- Botón 4: DIFICULTAD -->
+        <!-- Botón 4: JUGAR ONLINE -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnOnline"
+            android:layout_width="210dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="6dp"
+            android:background="@drawable/button_pill"
+            android:fontFamily="sans-serif-rounded"
+            android:text="JUGAR ONLINE"
+            android:textAllCaps="true"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <!-- Botón 5: DIFICULTAD -->
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnDifficulty"
             android:layout_width="210dp"
@@ -126,7 +140,7 @@
             android:textSize="13sp"
             android:textStyle="bold" />
 
-        <!-- Botón 5: ACERCA DE -->
+        <!-- Botón 6: ACERCA DE -->
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnAbout"
             android:layout_width="210dp"

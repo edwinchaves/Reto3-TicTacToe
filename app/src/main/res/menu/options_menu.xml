@@ -9,6 +9,12 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/online_game"
+        android:icon="@android:drawable/ic_menu_share"
+        android:title="Juego Online"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/ai_difficulty"
         android:icon="@android:drawable/ic_menu_preferences"
         android:title="@string/menu_difficulty"

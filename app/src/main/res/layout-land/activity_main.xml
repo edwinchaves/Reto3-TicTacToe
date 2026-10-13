@@ -37,7 +37,7 @@
         android:layout_width="16dp"
         android:layout_height="match_parent" />
 
-    <!-- COLUMNA DERECHA: Título + Marcador de Victorias -->
+    <!-- COLUMNA DERECHA: Título + Código Sala Online + Marcador de Victorias -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
@@ -84,11 +84,24 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
+        <!-- Indicador de Código de Sala Online (Oculto por defecto en local) -->
+        <TextView
+            android:id="@+id/tvRoomId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="sans-serif-rounded"
+            android:text="Sala: ------"
+            android:textColor="#EE8090"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
         <!-- Panel de Victorias -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             android:orientation="vertical">
 
             <!-- Jugador 1 (Café) -->

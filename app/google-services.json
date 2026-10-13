@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "606443862587",
+    "project_id": "ositostictactoeonline",
+    "storage_bucket": "ositostictactoeonline.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:606443862587:android:52b527f69418507e183a1e",
+        "android_client_info": {
+          "package_name": "co.edu.unal.tictactoe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDeh0PbIQXpVKH3ChexM-GSHkYyZ7uxn7Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

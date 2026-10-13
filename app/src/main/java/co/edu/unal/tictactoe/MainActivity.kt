@@ -12,15 +12,22 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class MainActivity : AppCompatActivity() {
 
     private var game: TicTacToeGame? = null
     private var boardView: BoardView? = null
     private var tvInfo: TextView? = null
+    private var tvRoomId: TextView? = null
     private var tvP1Wins: TextView? = null
     private var tvP2Wins: TextView? = null
     private var tvP2Label: TextView? = null
@@ -30,7 +37,14 @@ class MainActivity : AppCompatActivity() {
     private var isGameActive: Boolean = true
     private var isHumanTurn: Boolean = true
 
-    // Guardar quién iniciará la siguiente ronda (1: Jugador 1 / Humano, 2: Jugador 2 / CPU)
+    // Variables para el modo Multijugador Online
+    private var isOnline: Boolean = false
+    private var roomId: String? = null
+    private var myRole: String = "X" // "X" (Host / Jugador 1) u "O" (Guest / Jugador 2)
+    private var roomRef: DatabaseReference? = null
+    private var roomEventListener: ValueEventListener? = null
+
+    // Guardar quién iniciará la siguiente ronda
     private var nextStarter: Int = 1
 
     // Puntuación permanente
@@ -51,11 +65,16 @@ class MainActivity : AppCompatActivity() {
 
             prefs = getSharedPreferences("ttt_prefs", Context.MODE_PRIVATE)
 
-            isVsCpu = intent?.getBooleanExtra("EXTRA_VS_CPU", true) ?: true
+            // Leer intents del Menú
+            isOnline = intent?.getBooleanExtra("EXTRA_IS_ONLINE", false) ?: false
+            roomId = intent?.getStringExtra("EXTRA_ROOM_ID")
+            myRole = intent?.getStringExtra("EXTRA_MY_ROLE") ?: "X"
+            isVsCpu = if (isOnline) false else (intent?.getBooleanExtra("EXTRA_VS_CPU", true) ?: true)
             val isNewGame = intent?.getBooleanExtra("EXTRA_NEW_GAME", true) ?: true
 
             game = TicTacToeGame()
             tvInfo = findViewById(R.id.tvInfo)
+            tvRoomId = findViewById(R.id.tvRoomId)
             boardView = findViewById(R.id.boardView)
             tvP1Wins = findViewById(R.id.tvPlayer1Wins)
             tvP2Wins = findViewById(R.id.tvPlayer2Wins)
@@ -65,12 +84,20 @@ class MainActivity : AppCompatActivity() {
             val savedDifficulty = prefs?.getInt("mDifficulty", 0) ?: 0
             game?.setDifficultyLevel(savedDifficulty)
 
-            // Configurar íconos y textos tanto en la UI externa como dentro del tablero (BoardView)
-            if (isVsCpu) {
+            // Configurar UI según la modalidad de juego
+            if (isOnline) {
+                tvRoomId?.visibility = View.VISIBLE
+                tvRoomId?.text = "Sala: $roomId"
+                ivP2Icon?.setImageResource(R.drawable.ic_bear_human2)
+                tvP2Label?.text = "RIVAL"
+                boardView?.setPlayerBitmaps(R.drawable.ic_bear_human, R.drawable.ic_bear_human2)
+            } else if (isVsCpu) {
+                tvRoomId?.visibility = View.GONE
                 ivP2Icon?.setImageResource(R.drawable.ic_bear_robot)
                 tvP2Label?.text = "CPU"
                 boardView?.setPlayerBitmaps(R.drawable.ic_bear_human, R.drawable.ic_bear_robot)
             } else {
+                tvRoomId?.visibility = View.GONE
                 ivP2Icon?.setImageResource(R.drawable.ic_bear_human2)
                 tvP2Label?.text = "JUGADOR 2"
                 boardView?.setPlayerBitmaps(R.drawable.ic_bear_human, R.drawable.ic_bear_human2)
@@ -80,7 +107,7 @@ class MainActivity : AppCompatActivity() {
                 boardView?.setGame(g)
             }
 
-            if (isNewGame) {
+            if (isNewGame && !isOnline) {
                 p1Wins = 0
                 p2Wins = 0
                 saveScores()
@@ -132,7 +159,9 @@ class MainActivity : AppCompatActivity() {
                 false
             }
 
-            if (savedInstanceState == null) {
+            if (isOnline) {
+                setupOnlineGame()
+            } else if (savedInstanceState == null) {
                 startNewGame()
             }
 
@@ -141,11 +170,76 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupOnlineGame() {
+        val currentRoomId = roomId ?: return
+        roomRef = FirebaseDatabase.getInstance().getReference("rooms").child(currentRoomId)
+
+        roomEventListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (!snapshot.exists()) return
+
+                val gameStatus = snapshot.child("gameStatus").value as? String ?: "waiting"
+                val turn = snapshot.child("turn").value as? String ?: "X"
+                val boardList = snapshot.child("board").value as? List<String>
+
+                if (gameStatus == "waiting") {
+                    tvInfo?.text = "Esperando rival..."
+                    isGameActive = false
+                    return
+                }
+
+                // Sincronizar el tablero desde Firebase
+                boardList?.let { list ->
+                    for (i in list.indices) {
+                        val symbol = list[i]
+                        val charValue = when (symbol) {
+                            "X" -> TicTacToeGame.HUMAN_PLAYER
+                            "O" -> TicTacToeGame.COMPUTER_PLAYER
+                            else -> TicTacToeGame.OPEN_SPOT
+                        }
+                        game?.setMove(charValue, i)
+                    }
+                    boardView?.invalidate()
+                }
+
+                // Verificar si hay ganador
+                val winner = game?.checkForWinner() ?: 0
+                if (winner != 0) {
+                    updateGameStatus(winner)
+                    return
+                }
+
+                // Gestionar turno online
+                isGameActive = true
+                if (turn == myRole) {
+                    isHumanTurn = true
+                    tvInfo?.text = "¡Es tu turno! ($myRole)"
+                } else {
+                    isHumanTurn = false
+                    tvInfo?.text = "Turno del rival... ⏳"
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(this@MainActivity, "Error de conexión online", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        roomRef?.addValueEventListener(roomEventListener as ValueEventListener)
+    }
+
     private fun startNewGame() {
         game?.clearBoard()
         isGameActive = true
 
-        // El jugador o la CPU que deba iniciar arranca la ronda
+        if (isOnline) {
+            val emptyBoard = listOf("", "", "", "", "", "", "", "", "")
+            roomRef?.child("board")?.setValue(emptyBoard)
+            roomRef?.child("turn")?.setValue("X")
+            roomRef?.child("gameStatus")?.setValue("playing")
+            return
+        }
+
         isHumanTurn = (nextStarter == 1)
         boardView?.invalidate()
 
@@ -168,6 +262,27 @@ class MainActivity : AppCompatActivity() {
     private fun onCellClicked(location: Int) {
         val g = game ?: return
         if (!isGameActive) return
+
+        if (isOnline) {
+            if (isHumanTurn && g.getBoardState()[location] == TicTacToeGame.OPEN_SPOT) {
+                val playerChar = if (myRole == "X") TicTacToeGame.HUMAN_PLAYER else TicTacToeGame.COMPUTER_PLAYER
+                g.setMove(playerChar, location)
+                playHumanSound()
+                boardView?.invalidate()
+
+                val currentBoard = g.getBoardState().map {
+                    when (it) {
+                        TicTacToeGame.HUMAN_PLAYER -> "X"
+                        TicTacToeGame.COMPUTER_PLAYER -> "O"
+                        else -> ""
+                    }
+                }
+                val nextTurn = if (myRole == "X") "O" else "X"
+                roomRef?.child("board")?.setValue(currentBoard)
+                roomRef?.child("turn")?.setValue(nextTurn)
+            }
+            return
+        }
 
         if (isVsCpu) {
             if (isHumanTurn) {
@@ -233,30 +348,36 @@ class MainActivity : AppCompatActivity() {
         when (winner) {
             1 -> {
                 tvInfo?.text = "¡Es un empate! 🤝"
-                // En empate, el turno de inicio se alterna
                 nextStarter = if (nextStarter == 1) 2 else 1
             }
             2 -> {
-                tvInfo?.text = if (isVsCpu) "¡Ganaste 🐻!" else "¡Ganó Jugador 1 🐻!"
+                if (isOnline) {
+                    tvInfo?.text = if (myRole == "X") "¡Ganaste! 🎉" else "¡Ganó tu rival! 🐻"
+                } else {
+                    tvInfo?.text = if (isVsCpu) "¡Ganaste 🐻!" else "¡Ganó Jugador 1 🐻!"
+                }
                 p1Wins++
-                nextStarter = 1 // El ganador 1 inicia la siguiente partida
+                nextStarter = 1
             }
             3 -> {
-                tvInfo?.text = if (isVsCpu) "¡Ganó el Robot 🤖!" else "¡Ganó Jugador 2 🐼!"
+                if (isOnline) {
+                    tvInfo?.text = if (myRole == "O") "¡Ganaste! 🎉" else "¡Ganó tu rival! 🐼"
+                } else {
+                    tvInfo?.text = if (isVsCpu) "¡Ganó el Robot 🤖!" else "¡Ganó Jugador 2 🐼!"
+                }
                 p2Wins++
-                nextStarter = 2 // El ganador 2 (o CPU) inicia la siguiente partida
+                nextStarter = 2
             }
         }
         isGameActive = false
         displayScores()
-        saveScores()
+        if (!isOnline) saveScores()
 
-        // Reiniciar automáticamente el juego tras 2 segundos para continuar la partida
         Handler(Looper.getMainLooper()).postDelayed({
             if (!isFinishing) {
                 startNewGame()
             }
-        }, 2000)
+        }, 2500)
     }
 
     private fun displayScores() {
@@ -272,34 +393,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putCharArray("board", game?.getBoardState())
-        outState.putBoolean("isGameActive", isGameActive)
-        outState.putBoolean("isHumanTurn", isHumanTurn)
-        outState.putInt("nextStarter", nextStarter)
-        outState.putCharSequence("infoText", tvInfo?.text)
-        outState.putInt("p1Wins", p1Wins)
-        outState.putInt("p2Wins", p2Wins)
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        savedInstanceState.getCharArray("board")?.let { game?.setBoardState(it) }
-        isGameActive = savedInstanceState.getBoolean("isGameActive")
-        isHumanTurn = savedInstanceState.getBoolean("isHumanTurn")
-        nextStarter = savedInstanceState.getInt("nextStarter", 1)
-        tvInfo?.text = savedInstanceState.getCharSequence("infoText")
-        p1Wins = savedInstanceState.getInt("p1Wins")
-        p2Wins = savedInstanceState.getInt("p2Wins")
-
-        displayScores()
-        boardView?.invalidate()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        saveScores()
+    override fun onDestroy() {
+        super.onDestroy()
+        roomEventListener?.let {
+            roomRef?.removeEventListener(it)
+        }
     }
 
     private fun confirmExitToMenu() {
